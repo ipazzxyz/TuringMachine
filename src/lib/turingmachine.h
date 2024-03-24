@@ -1,8 +1,8 @@
 #ifndef TM_LIB_TURINGMACHINE_H_
 #define TM_LIB_TURINGMACHINE_H_
 
-#include "Exception.hpp"
-#include "Function.hpp"
+#include "exception.h"
+#include "function.h"
 
 #include <map>
 #include <set>
@@ -17,11 +17,11 @@ public:
 
     char &operator[](int);
 
-    int getCurrentIndex();
-    int getFiniteTableSize();
-    std::set<char> &getMainAlphabet();
-    std::set<char> &getAdditionalAlphabet();
-    std::string getFunction(int, char);
+    int currentIndex();
+    int finiteTableSize();
+    std::set<char> &mainAlphabet();
+    std::set<char> &additionalAlphabet();
+    std::string function(int, char);
 
     void makeStep();
 
@@ -32,11 +32,20 @@ public:
     void setFunction(int, char, std::string);
     void setString(std::string);
 
+    void resetTape();
+    void resetAlphabet();
+
+    void setMainAlphabet(std::string &);
+    void setAdditionalAlphabet(std::string &);
+
+    void reset();
+
 private:
     bool stopped_ = false;
+    bool has_exit_ = false;
 
     std::vector<char> tape_;
-    int current_cell_;
+    int current_index_;
 
     std::vector<std::map<char, Function>> finite_table_;
     int current_state_;
@@ -44,11 +53,8 @@ private:
     std::set<char> main_alphabet_;
     std::set<char> additional_alphabet_;
 
-    void resetTape();
-    void resetAlphabet();
-
-    void setMainAlphabet(std::string &);
-    void setAdditionalAlphabet(std::string &);
+    void stop();
+    void check_for_exit();
 };
 
 #endif // TM_LIB_TURINGMACHINE_H_

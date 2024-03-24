@@ -1,9 +1,10 @@
 #ifndef TM_APP_WINDOW_H_
 #define TM_APP_WINDOW_H_
 
-#include "ui_MainWindow.h"
+#include "ui_mainwindow.h"
 
-#include <TuringMachine.hpp>
+#include <turingmachine.h>
+
 #include <QMessageBox>
 #include <QTimer>
 
@@ -15,6 +16,7 @@ inline QChar normalize(char c)
     }
     return c;
 }
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -32,23 +34,31 @@ public slots:
     void on_finiteTable_cellChanged(int, int);
     void on_start_clicked();
     void on_stop_clicked();
+    void on_pause_clicked();
 
 private:
-    Ui::MainWindow *ui_;
-    QMessageBox *alert_;
-    QTimer *timer_, *move_timer_;
     TuringMachine *turing_machine_;
+
+    Ui::MainWindow *ui_;
+
+    QMessageBox *alert_;
+    QTimer *timer_;
+    QTimer *move_timer_;
+
     int middle_cell_;
 
-    void alert(std::string);
+    void setup();
+    void setup_timers();
+
+    void update();
+    void update_finitetable();
+    void update_headers();
+    void update_states();
+    void update_tape();
 
     void move();
 
-    void update();
-    void updateFiniteTable();
-    void updateHeaders();
-    void updateStates();
-    void updateTape();
+    void alert(std::string);
 };
 
 #endif // TM_APP_WINDOW_H_

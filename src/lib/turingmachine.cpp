@@ -1,6 +1,7 @@
-#include "TuringMachine.hpp"
+#include "turingmachine.h"
 
 #include <algorithm>
+#include <iostream>
 
 TuringMachine::TuringMachine(int size) : tape_(size, '^'), finite_table_(1)
 {
@@ -11,11 +12,11 @@ TuringMachine::~TuringMachine() {}
 
 char &TuringMachine::operator[](int index) { return tape_[index]; }
 
-int TuringMachine::getCurrentIndex() { return current_cell_; }
-int TuringMachine::getFiniteTableSize() { return finite_table_.size(); }
-std::set<char> &TuringMachine::getMainAlphabet() { return main_alphabet_; }
-std::set<char> &TuringMachine::getAdditionalAlphabet() { return additional_alphabet_; }
-std::string TuringMachine::getFunction(int state, char character)
+int TuringMachine::currentIndex() { return current_index_; }
+int TuringMachine::finiteTableSize() { return finite_table_.size(); }
+std::set<char> &TuringMachine::mainAlphabet() { return main_alphabet_; }
+std::set<char> &TuringMachine::additionalAlphabet() { return additional_alphabet_; }
+std::string TuringMachine::function(int state, char character)
 {
     Function &function = finite_table_[state][character];
     std::string result;
@@ -38,29 +39,33 @@ void TuringMachine::makeStep()
 {
     if (stopped_)
     {
-        throw Exception::InactiveMachine();
+        throw exception::InactiveMachine();
+    }
+    if (!has_exit_)
+    {
+        // throw exception::NoExitFunction();
     }
 
-    Function function = finite_table_[current_state_][tape_[current_cell_]];
+    Function function = finite_table_[current_state_][tape_[current_index_]];
 
     if (function.symbol)
     {
-        tape_[current_cell_] = function.symbol;
+        tape_[current_index_] = function.symbol;
     }
 
     if (function.special)
     {
         if (function.special == '<')
         {
-            --current_cell_;
+            --current_index_;
         }
         else if (function.special == '>')
         {
-            ++current_cell_;
+            ++current_index_;
         }
         else if (function.special == '!')
         {
-            stopped_ = true;
+            stop();
         }
     }
 
@@ -77,7 +82,7 @@ void TuringMachine::stateRemove()
 {
     if (finite_table_.size() == 0)
     {
-        throw Exception::DeleteNothing();
+        throw exception::DeleteNothing();
     }
 
     finite_table_.erase(finite_table_.end() - 1);
@@ -93,23 +98,22 @@ void TuringMachine::setAlphabet(std::string main_alphabet, std::string additiona
     std::set_intersection(main_alphabet_.begin(), main_alphabet_.end(), additional_alphabet_.begin(), additional_alphabet_.end(), std::back_inserter(intersection));
     if (!intersection.empty())
     {
-        throw Exception::AlphabetIntersection();
+        throw exception::AlphabetIntersection();
         main_alphabet_.clear();
         additional_alphabet_.clear();
     }
     return;
 }
+
 void TuringMachine::setFunction(int state, char character, std::string string)
 {
     Function &function = finite_table_[state][character];
-    function = Function();
     int i = 0;
     if (string[i] != '<' && string[i] != '>' && string[i] != '!' && !isdigit(string[i]))
     {
         if (main_alphabet_.find(string[i]) == main_alphabet_.end() && additional_alphabet_.find(string[i]) == additional_alphabet_.end())
         {
-            function = Function();
-            throw Exception::UnknownSymbol();
+            throw exception::UnknownSymbol();
         }
         function.symbol = string[i++];
     }
@@ -125,7 +129,7 @@ void TuringMachine::setFunction(int state, char character, std::string string)
         if (!isdigit(string[i]))
         {
             function = Function();
-            throw Exception::BadFunction();
+            throw exception::BadFunction();
         }
         flag = true;
         function.state = function.state * 10 + string[i++] - '0';
@@ -136,7 +140,7 @@ void TuringMachine::setFunction(int state, char character, std::string string)
         if (function.state > finite_table_.size())
         {
             function = Function();
-            throw Exception::BadFunction();
+            throw exception::BadFunction();
         }
     }
     return;
@@ -149,16 +153,16 @@ void TuringMachine::setString(std::string string)
         if (main_alphabet_.find(string[i]) == main_alphabet_.end())
         {
             resetTape();
-            throw Exception::UnknownSymbol();
+            throw exception::UnknownSymbol();
         }
-        tape_[current_cell_ + i] = string[i];
+        tape_[current_index_ + i] = string[i];
     }
     return;
 }
 
 void TuringMachine::resetTape()
 {
-    stopped_ = false, current_cell_ = tape_.size() / 2, current_state_ = 0;
+    stopped_ = false, current_index_ = tape_.size() / 2, current_state_ = 0;
     std::fill(tape_.begin(), tape_.end(), '^');
     return;
 }
@@ -177,12 +181,12 @@ void TuringMachine::setMainAlphabet(std::string &alphabet)
         if (character <= 32 || character == '<' || character == '>' || character == '!')
         {
             resetAlphabet();
-            throw Exception::UnallowedSymbol();
+            throw exception::UnallowedSymbol();
         }
         if (main_alphabet_.find(character) != main_alphabet_.end())
         {
             resetAlphabet();
-            throw Exception::AlphabetIntersection();
+            throw exception::AlphabetIntersection();
         }
         main_alphabet_.insert(character);
     }
@@ -195,14 +199,58 @@ void TuringMachine::setAdditionalAlphabet(std::string &alphabet)
         if (character <= 32 || character == '<' || character == '>' || character == '!')
         {
             resetAlphabet();
-            throw Exception::UnallowedSymbol();
+            throw exception::UnallowedSymbol();
         }
         if (additional_alphabet_.find(character) != additional_alphabet_.end())
         {
             resetAlphabet();
-            throw Exception::AlphabetIntersection();
+            throw exception::AlphabetIntersection();
         }
         additional_alphabet_.insert(character);
     }
     return;
+}
+
+void TuringMachine::stop()
+{
+    stopped_ = true;
+    for (char c : tape_)
+    {
+        if (c != '^' && main_alphabet_.find(c) == main_alphabet_.end())
+        {
+            throw exception::SymbolNotFromAlphabetOnTape();
+        }
+    }
+}
+void TuringMachine::reset()
+{
+    finite_table_.clear();
+    resetAlphabet();
+    resetTape();
+}
+void TuringMachine::check_for_exit()
+{
+    for (int i = 0; i < finite_table_.size(); ++i)
+    {
+        for (char c : main_alphabet_)
+        {
+            if (finite_table_[i][c].special == '!')
+            {
+                std::cout << c << ':' << finite_table_[i][c].symbol << std::endl;
+                has_exit_ = true;
+                return;
+            }
+        }
+        for (char c : additional_alphabet_)
+        {
+
+            std::cout << c << ':' << finite_table_[i][c].symbol << std::endl;
+            if (finite_table_[i][c].special == '!')
+            {
+                has_exit_ = true;
+                return;
+            }
+        }
+    }
+    has_exit_ = false;
 }

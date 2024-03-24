@@ -1,9 +1,9 @@
 add_executable(TuringMachine
     main.cpp
     main.qrc
-    MainWindow.ui
-    MainWindow.cpp
-    MainWindow.hpp
+    mainwindow.ui
+    mainwindow.cpp
+    mainwindow.h
 )
 target_link_libraries(TuringMachine PRIVATE
     TM

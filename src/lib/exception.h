@@ -4,15 +4,12 @@
 #include <exception>
 #include <string>
 
-namespace Exception
+namespace exception
 {
     class InactiveMachine : public std::exception
     {
     public:
-        std::string what()
-        {
-            return "Машина Тьюринга закончила работу";
-        }
+        std::string what() { return "Машина Тьюринга закончила работу"; }
     };
     class AlphabetIntersection : public std::exception
     {
@@ -38,6 +35,16 @@ namespace Exception
     {
     public:
         std::string what() { return "Введен символ, которого нет в алфавите"; }
+    };
+    class SymbolNotFromAlphabetOnTape : public std::exception
+    {
+    public:
+        std::string what() { return "Символ, которого нет в основном алфавите, остался на ленте"; }
+    };
+    class NoExitFunction : public std::exception
+    {
+    public:
+        std::string what() { return "У программы нет условия остановки"; }
     };
 };
 
