@@ -1,60 +1,59 @@
 #ifndef TM_LIB_TURINGMACHINE_H_
 #define TM_LIB_TURINGMACHINE_H_
 
-#include "exception.h"
-#include "function.h"
-
 #include <map>
 #include <set>
 #include <string>
 #include <vector>
 
-class TuringMachine
-{
-public:
-    TuringMachine(int);
-    ~TuringMachine();
+#include "exception.h"
+#include "function.h"
 
-    char &operator[](int);
+class TuringMachine {
+ public:
+  TuringMachine(int);
+  ~TuringMachine();
 
-    int currentIndex();
-    int finiteTableSize();
-    std::set<char> &mainAlphabet();
-    std::set<char> &additionalAlphabet();
-    std::string function(int, char);
+  char &operator[](int);
 
-    void makeStep();
+  int currentIndex();
+  int finiteTableSize();
+  std::set<char> &mainAlphabet();
+  std::set<char> &additionalAlphabet();
+  std::string function(int, char);
 
-    void stateAdd();
-    void stateRemove();
+  void makeStep();
 
-    void setAlphabet(std::string, std::string);
-    void setFunction(int, char, std::string);
-    void setString(std::string);
+  void stateAdd();
+  void stateRemove();
 
-    void resetTape();
-    void resetAlphabet();
+  void setAlphabet(std::string, std::string);
+  void setFunction(int, char, std::string);
+  void setString(std::string);
 
-    void setMainAlphabet(std::string &);
-    void setAdditionalAlphabet(std::string &);
+  void resetTape();
+  void resetAlphabet();
 
-    void reset();
+  void setMainAlphabet(std::string &);
+  void setAdditionalAlphabet(std::string &);
 
-private:
-    bool stopped_ = false;
-    bool has_exit_ = false;
+  void reset();
 
-    std::vector<char> tape_;
-    int current_index_;
+ private:
+  bool stopped_ = false;
+  bool has_exit_ = false;
 
-    std::vector<std::map<char, Function>> finite_table_;
-    int current_state_;
+  std::vector<char> tape_;
+  int current_index_;
 
-    std::set<char> main_alphabet_;
-    std::set<char> additional_alphabet_;
+  std::vector<std::map<char, Function>> finite_table_;
+  int current_state_;
 
-    void stop();
-    void check_for_exit();
+  std::set<char> main_alphabet_;
+  std::set<char> additional_alphabet_;
+
+  void stop();
+  void check_for_exit();
 };
 
-#endif // TM_LIB_TURINGMACHINE_H_
+#endif  // TM_LIB_TURINGMACHINE_H_
