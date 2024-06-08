@@ -5,10 +5,6 @@ qt_add_executable(turingmachine
     mainwindow.cpp
     mainwindow.h
 )
-qt_add_resources(turingmachine imageresources
-    PREFIX "/"
-    FILES img/head.png
-)
 
 target_link_libraries(turingmachine PRIVATE
     turingmachinelogic
