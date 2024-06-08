@@ -1,106 +1,143 @@
 #include "mainwindow.h"
-
 #include <iostream>
-
 MainWindow::MainWindow()
     : ui_(new Ui::MainWindow),
       alert_(new QMessageBox),
       timer_(new QTimer),
       move_timer_(new QTimer),
-      turing_machine_(new TuringMachine(1e6)) {
+      turing_machine_(new TuringMachine(1e6))
+{
   setup();
   update();
+  return;
 }
-MainWindow::~MainWindow() {
+MainWindow::~MainWindow()
+{
   delete ui_, alert_, timer_, move_timer_, turing_machine_;
+  return;
 }
 
-void MainWindow::on_alphabetSet_clicked() {
-  try {
+void MainWindow::on_alphabetSet_clicked()
+{
+  try
+  {
     turing_machine_->setAlphabet(
         ui_->alphabetParameter->text().toStdString(),
         ui_->alphabetAdditionalParameter->text().toStdString());
-  } catch (exception::AlphabetIntersection exception) {
+  }
+  catch (exception::AlphabetIntersection exception)
+  {
     alert(exception.what());
-  } catch (exception::UnallowedSymbol exception) {
+  }
+  catch (exception::UnallowedSymbol exception)
+  {
     alert(exception.what());
   }
   update();
   return;
 }
-void MainWindow::on_stateAdd_clicked() {
+void MainWindow::on_stateAdd_clicked()
+{
   turing_machine_->stateAdd();
   update();
   return;
 }
-void MainWindow::on_stateRemove_clicked() {
-  try {
+void MainWindow::on_stateRemove_clicked()
+{
+  try
+  {
     turing_machine_->stateRemove();
-  } catch (exception::DeleteNothing exception) {
+  }
+  catch (exception::DeleteNothing exception)
+  {
     alert(exception.what());
   }
   update();
   return;
 }
-void MainWindow::on_pause_clicked() { timer_->stop(); }
-void MainWindow::on_stringSet_clicked() {
-  try {
+void MainWindow::on_pause_clicked()
+{
+  timer_->stop();
+  return;
+}
+void MainWindow::on_stringSet_clicked()
+{
+  try
+  {
     s_ = ui_->stringParameter->text();
     turing_machine_->setString(ui_->stringParameter->text().toStdString());
-  } catch (exception::UnknownSymbol exception) {
+  }
+  catch (exception::UnknownSymbol exception)
+  {
     alert(exception.what());
   }
   update();
   return;
 }
-void MainWindow::on_nextStep_clicked() {
-  try {
+void MainWindow::on_nextStep_clicked()
+{
+  try
+  {
     turing_machine_->makeStep();
-  } catch (exception::InactiveMachine exception) {
+  }
+  catch (exception::InactiveMachine exception)
+  {
     alert(exception.what());
-  } catch (exception::SymbolNotFromAlphabetOnTape exception) {
-    alert(exception.what());
-  } catch (exception::NoExitFunction exception) {
+  }
+  catch (exception::SymbolNotFromAlphabetOnTape exception)
+  {
     alert(exception.what());
   }
   update();
   return;
 }
-void MainWindow::on_finiteTable_cellChanged(int row, int column) {
-  try {
+void MainWindow::on_finiteTable_cellChanged(int row, int column)
+{
+  try
+  {
     turing_machine_->setFunction(
         row,
         ui_->finiteTable->takeHorizontalHeaderItem(column)
             ->text()
             .toStdString()[0],
         ui_->finiteTable->item(row, column)->text().toStdString());
-  } catch (exception::BadFunction exception) {
+  }
+  catch (exception::BadFunction exception)
+  {
     alert(exception.what());
-  } catch (exception::UnknownSymbol exception) {
+  }
+  catch (exception::UnknownSymbol exception)
+  {
     alert(exception.what());
   }
   update();
   return;
 }
 void MainWindow::on_start_clicked() { timer_->start(); }
-void MainWindow::on_stop_clicked() {
-  try {
+void MainWindow::on_stop_clicked()
+{
+  try
+  {
     s_ = ui_->stringParameter->text();
     turing_machine_->setString(s_.toStdString());
-  } catch (exception::UnknownSymbol exception) {
+  }
+  catch (exception::UnknownSymbol exception)
+  {
     alert(exception.what());
   }
   update();
 }
 
-void MainWindow::setup() {
+void MainWindow::setup()
+{
   setFixedSize(960, 512);
   ui_->setupUi(this);
   middle_cell_ = turing_machine_->currentIndex();
   setup_timers();
   return;
 }
-void MainWindow::setup_timers() {
+void MainWindow::setup_timers()
+{
   connect(timer_, &QTimer::timeout, this, &MainWindow::on_nextStep_clicked);
   connect(move_timer_, &QTimer::timeout, this, &MainWindow::move);
   move_timer_->start();
@@ -108,28 +145,35 @@ void MainWindow::setup_timers() {
   return;
 }
 
-void MainWindow::update() {
+void MainWindow::update()
+{
   timer_->setInterval(1000. / (ui_->speedParameter->value() + 1));
   update_finitetable();
   update_tape();
   return;
 }
-void MainWindow::update_finitetable() {
+void MainWindow::update_finitetable()
+{
   update_headers();
   update_states();
   return;
 }
-void MainWindow::update_headers() {
+void MainWindow::update_headers()
+{
   std::set<char> &main_alphabet(turing_machine_->mainAlphabet());
   std::set<char> &additional_alphabet(turing_machine_->additionalAlphabet());
   ui_->finiteTable->setColumnCount(main_alphabet.size() +
                                    additional_alphabet.size());
   std::set<char>::iterator it = main_alphabet.begin();
-  for (int i = 0; i < turing_machine_->mainAlphabet().size(); ++i) {
-    if (*it == '^') {
+  for (int i = 0; i < turing_machine_->mainAlphabet().size(); ++i)
+  {
+    if (*it == '^')
+    {
       ++it;
       --i;
-    } else {
+    }
+    else
+    {
       ui_->finiteTable->setHorizontalHeaderItem(
           i, new QTableWidgetItem(normalize(*(it++))));
     }
@@ -138,22 +182,28 @@ void MainWindow::update_headers() {
       turing_machine_->mainAlphabet().size() - 1,
       new QTableWidgetItem(QChar('^')));
   it = additional_alphabet.begin();
-  for (int i = 0; i < additional_alphabet.size(); ++i) {
+  for (int i = 0; i < additional_alphabet.size(); ++i)
+  {
     ui_->finiteTable->setHorizontalHeaderItem(
         main_alphabet.size() + i, new QTableWidgetItem(normalize(*(it++))));
   }
   ui_->finiteTable->setRowCount(turing_machine_->finiteTableSize());
-  for (int row = 0; row < ui_->finiteTable->rowCount(); ++row) {
+  for (int row = 0; row < ui_->finiteTable->rowCount(); ++row)
+  {
     ui_->finiteTable->setVerticalHeaderItem(
         row, new QTableWidgetItem(QString::fromStdString(std::to_string(row))));
   }
   return;
 }
-void MainWindow::update_states() {
-  for (int column = 0; column < ui_->finiteTable->columnCount(); ++column) {
-    for (int row = 0; row < ui_->finiteTable->rowCount(); ++row) {
+void MainWindow::update_states()
+{
+  for (int column = 0; column < ui_->finiteTable->columnCount(); ++column)
+  {
+    for (int row = 0; row < ui_->finiteTable->rowCount(); ++row)
+    {
       QTableWidgetItem *cell = ui_->finiteTable->item(row, column);
-      if (cell) {
+      if (cell)
+      {
         cell->setText(QString::fromStdString(turing_machine_->function(
             row, ui_->finiteTable->horizontalHeaderItem(column)
                      ->text()
@@ -163,9 +213,11 @@ void MainWindow::update_states() {
   }
   return;
 }
-void MainWindow::update_tape() {
+void MainWindow::update_tape()
+{
   if (middle_cell_ + 5 < turing_machine_->currentIndex() ||
-      middle_cell_ - 5 > turing_machine_->currentIndex()) {
+      middle_cell_ - 5 > turing_machine_->currentIndex())
+  {
     middle_cell_ = turing_machine_->currentIndex();
     ui_->arrow->move(446, 4);
   }
@@ -183,17 +235,21 @@ void MainWindow::update_tape() {
   return;
 }
 
-void MainWindow::move() {
+void MainWindow::move()
+{
   QPoint pos = ui_->arrow->pos();
   int x = pos.x(),
       required_x =
           (turing_machine_->currentIndex() - middle_cell_ + 5) * 85 + 21;
-  if (x < required_x) {
+  if (x < required_x)
+  {
     x += 5;
   }
-  if (x > required_x) {
+  if (x > required_x)
+  {
     x -= 5;
-    if (x < required_x) {
+    if (x < required_x)
+    {
       x = required_x;
     }
   }
@@ -201,7 +257,8 @@ void MainWindow::move() {
   return;
 }
 
-void MainWindow::alert(std::string s) {
+void MainWindow::alert(std::string s)
+{
   timer_->stop();
   alert_->setText(QString::fromStdString(s));
   alert_->exec();

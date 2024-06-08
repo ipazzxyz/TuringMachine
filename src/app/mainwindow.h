@@ -1,28 +1,25 @@
-#ifndef TM_APP_WINDOW_H_
-#define TM_APP_WINDOW_H_
-
+#pragma once
 #include <turingmachine.h>
-
 #include <QMessageBox>
 #include <QTimer>
-
 #include "ui_mainwindow.h"
-
-inline QChar normalize(char c) {
-  if (c == '^') {
+inline QChar normalize(char c)
+{
+  if (c == '^')
+  {
     return QChar(955);
   }
   return c;
 }
-
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
   Q_OBJECT
 
- public:
+public:
   MainWindow();
   ~MainWindow();
 
- public slots:
+public slots:
   void on_alphabetSet_clicked();
   void on_stateAdd_clicked();
   void on_stateRemove_clicked();
@@ -33,7 +30,7 @@ class MainWindow : public QMainWindow {
   void on_stop_clicked();
   void on_pause_clicked();
 
- private:
+private:
   TuringMachine *turing_machine_;
 
   Ui::MainWindow *ui_;
@@ -58,5 +55,3 @@ class MainWindow : public QMainWindow {
 
   void alert(std::string);
 };
-
-#endif  // TM_APP_WINDOW_H_

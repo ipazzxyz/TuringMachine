@@ -1,18 +1,14 @@
-#ifndef TM_LIB_TURINGMACHINE_H_
-#define TM_LIB_TURINGMACHINE_H_
-
+#pragma once
 #include <map>
 #include <set>
 #include <string>
 #include <vector>
-
 #include "exception.h"
 #include "function.h"
-
-class TuringMachine {
- public:
+class TuringMachine
+{
+public:
   TuringMachine(int);
-  ~TuringMachine();
 
   char &operator[](int);
 
@@ -39,7 +35,7 @@ class TuringMachine {
 
   void reset();
 
- private:
+private:
   bool stopped_ = false;
   bool has_exit_ = false;
 
@@ -55,5 +51,3 @@ class TuringMachine {
   void stop();
   void check_for_exit();
 };
-
-#endif  // TM_LIB_TURINGMACHINE_H_
